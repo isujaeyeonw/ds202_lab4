@@ -313,6 +313,7 @@ def_off_ind %>%
 
 
 **3. Which ISU player(s) made big progress over the last year? Compare the 2019 and the 2018 data here.**
+
 ### Load & Clean 2018 Data Set
 ```{r}
 # Loading & Cleaning 2018 Data Set
