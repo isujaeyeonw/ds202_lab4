@@ -51,7 +51,11 @@ offClean <- offense %>%
 
 #cleaning the bio data
 bioClean <- biography %>%
-  mutate(Weight = as.numeric(Weight))
+  mutate(Weight = as.numeric(Weight)) %>%
+  separate(Height, c("feet","inches"), "-") %>%
+  mutate(Height = as.numeric(feet)* 12 + as.numeric(inches)) %>%
+  select(-feet, -inches)
+
 
 str(defClean)
 str(offClean)

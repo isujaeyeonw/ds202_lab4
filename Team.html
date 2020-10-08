@@ -420,7 +420,11 @@ offClean &lt;- offense %&gt;%
 <pre><code>## Warning in fn(col, ...): NAs introduced by coercion</code></pre>
 <pre class="r"><code>#cleaning the bio data
 bioClean &lt;- biography %&gt;%
-  mutate(Weight = as.numeric(Weight))
+  mutate(Weight = as.numeric(Weight)) %&gt;%
+  separate(Height, c(&quot;feet&quot;,&quot;inches&quot;), &quot;-&quot;) %&gt;%
+  mutate(Height = as.numeric(feet)* 12 + as.numeric(inches)) %&gt;%
+  select(-feet, -inches)
+
 
 str(defClean)</code></pre>
 <pre><code>## tibble [502 x 11] (S3: tbl_df/tbl/data.frame)
@@ -453,11 +457,11 @@ str(defClean)</code></pre>
 <pre><code>## tibble [105 x 7] (S3: tbl_df/tbl/data.frame)
 ##  $ Name      : chr [1:105] &quot;Akers, Landen&quot; &quot;Allen, Chase&quot; &quot;Anderson, Ezeriah&quot; &quot;Assalley, Connor&quot; ...
 ##  $ Position  : chr [1:105] &quot;Wide Receiver&quot; &quot;Tight End&quot; &quot;Wide Receiver&quot; &quot;Placekicker&quot; ...
-##  $ Height    : chr [1:105] &quot;6-0&quot; &quot;6-7&quot; &quot;6-5&quot; &quot;6-0&quot; ...
 ##  $ Weight    : num [1:105] 188 245 204 195 190 235 255 285 300 215 ...
 ##  $ Class     : chr [1:105] &quot;Redshirt Senior&quot; &quot;Redshirt Senior&quot; &quot;Redshirt Freshman&quot; &quot;Redshirt Senior&quot; ...
 ##  $ Hometown  : chr [1:105] &quot;Cedar Rapids, Iowa&quot; &quot;Nixa, Mo.&quot; &quot;Seffner, Fla.&quot; &quot;Naperville, Ill.&quot; ...
-##  $ Highschool: chr [1:105] &quot;Washington&quot; &quot;Nixa&quot; &quot;Armwood&quot; &quot;Central&quot; ...</code></pre>
+##  $ Highschool: chr [1:105] &quot;Washington&quot; &quot;Nixa&quot; &quot;Armwood&quot; &quot;Central&quot; ...
+##  $ Height    : num [1:105] 72 79 77 72 72 75 74 74 72 78 ...</code></pre>
 <hr>
 <h3>
 Tidying

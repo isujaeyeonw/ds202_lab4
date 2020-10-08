@@ -10,6 +10,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+library(readxl)
 
 ```
 
@@ -30,6 +31,35 @@ library(tidyverse)
 
 ```{r}
 ##  DATA CLEANING   ##
+
+defense <- read_excel('cyclonesFootball2019.xlsx', sheet='Defensive')
+offense <- read_excel('cyclonesFootball2019.xlsx', sheet='Offensive')
+biography <- read_excel('cyclonesFootball2019.xlsx', sheet='Biography')
+
+
+#cleaning the defense data
+defClean <- defense %>%
+  mutate(Name = factor(Name),
+         Opponent_Opponent=factor(Opponent_Opponent)) %>%
+  mutate(across(Tackles_Solo:Pass_PB, as.numeric))
+
+#cleaning the offense data
+offClean <- offense %>%
+  mutate(Name = factor(Name),
+         Opponent_Opponent = factor(Opponent_Opponent)) %>%
+  mutate(across(Rushing_ATT:Passing_INT, as.numeric))
+
+#cleaning the bio data
+bioClean <- biography %>%
+  mutate(Weight = as.numeric(Weight)) %>%
+  separate(Height, c("feet","inches"), "-") %>%
+  mutate(Height = as.numeric(feet)* 12 + as.numeric(inches)) %>%
+  select(-feet, -inches)
+
+
+str(defClean)
+str(offClean)
+str(bioClean)
 
 ```
 
