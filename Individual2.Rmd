@@ -1,0 +1,87 @@
+---
+title: 'Lab #4'
+author: "Jay Maxwell"
+output: html_document
+---
+<h4>DS202</h4>
+<h4>Fall 2020</h4>
+<hr>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+<h3>Cleaning</h3>
+
+1. The player names and opponent names are factors.
+
+
+
+2. All offensive and defensive statistics are numerical. The Weight column in biogrpahy is also numeric. (Optional: Learn to mutate multiple columns systematically using the ?across function in `dplyr)
+
+
+
+
+3.  Change the Height column in biography into numeric. (Hint: Use a unit that works well)
+
+
+
+```{r}
+##  DATA CLEANING   ##
+
+```
+
+
+<hr>
+<h3>Tidying</h3>
+
+
+
+1. Reformat the defClean data frame into a tidy format using pivot_longer. The type of statistic (Tackles_Solo, Tackles_ASST, etc) is added as a new key column named stat.
+
+
+2. Compare the distributions of the defensive statistics. What defensive skills are rare?
+
+
+
+3. Did ISU have better defense against Iowa or Notre Dame? Answer this question by creating a scatterplot with x- and y-axes being the number of solo tackles (of each player). A large number of solo tackles is an indicator of good defense.
+
+
+
+
+4. Separate the Hometown column into two columns, namely the city and the state. Print the first few rows of these two columns. (Hint: look at the sep= argument of separate)
+
+
+
+5. How many players are there from each state?
+
+```{r}
+##  DATA TIDYING   ##
+
+```
+
+
+
+<hr>
+<h3>Joining</h3>
+
+
+
+1. Find which states do the ISU defensive and offensive players come from. Create an appropriate summary.
+
+
+2. How does the performance of quarterback Brock Purdy relate to the performance of the ISU team?
+
+
+3. Which ISU player(s) made big progress over the last year? Compare the 2019 and the 2018 data here.
+
+```{r}
+##  DATA Joining   ##
+
+```
+
+
+
+
