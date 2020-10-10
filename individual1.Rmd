@@ -306,8 +306,25 @@ def_off_ind %>%
   filter(Name == "Purdy, Brock")
 
 
+## edit by Jay ##
+#
+# 
+# offClean_t <- offClean %>% pivot_longer(Rushing_ATT:Passing_INT, names_to='stat', values_to='value') %>% filter (!is.na(value)) %>% mutate(stat = factor(stat))
+# purdy_stats <- offClean_t %>% filter(Name=='Purdy, Brock') %>% group_by(stat) %>% summarise(purdy_mean = mean(value))
+# team_stat <- offClean_t %>% filter(Name != 'Purdy, Brock') %>% group_by(stat) %>% summarise(team_average = mean(value))
+# comparison_table <- purdy_stats %>% left_join(team_stat, c("stat" = "stat"))
+# 
+# comparison_table
+# 
+# 
+# 
+#
 
 ```
+
+
+
+
 
 
 

@@ -81,24 +81,59 @@ str(bioClean)
 
 1. Reformat the defClean data frame into a tidy format using pivot_longer. The type of statistic (Tackles_Solo, Tackles_ASST, etc) is added as a new key column named stat.
 
+```{r}
+defclean_t <- defClean %>% pivot_longer(Tackles_Solo:Pass_PB, names_to='stat', values_to='value')
+head(defclean_t)
+
+```
 
 2. Compare the distributions of the defensive statistics. What defensive skills are rare?
 
 
+```{r}
+q2 <- defclean_t %>% 
+  group_by(stat) %>% 
+  summarise(summary=sum(value)) %>%
+  arrange(summary)
+head(q2)
+
+p <- ggplot(q2, aes(x=stat, weight=summary)) + geom_bar()
+p + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) + ggtitle('Distribution of defensive stats')
+  
+```
+
+It looks like turnovers are rare, because they have the lowest count. So our defensive players don't initiate too many turnovers. The  tackles _ sacks count is also rare, which I think means that our lineplayers don't get too many QB tackled in when the other team has the ball. We have a lot of tackles, which is to be expected from the stats for defensive players. 
+
+<hr>
 
 3. Did ISU have better defense against Iowa or Notre Dame? Answer this question by creating a scatterplot with x- and y-axes being the number of solo tackles (of each player). A large number of solo tackles is an indicator of good defense.
 
+```{r}
 
+q3 <- defclean_t %>% pivot_wider(names_from = 'Opponent_Opponent', values_from = 'value') %>%
+  select(stat, Iowa, `Notre Dame`) %>% 
+  filter(stat=='Tackles_Solo')
+
+ggplot(q3, aes(x=Iowa, y=`Notre Dame`)) + geom_point(position="jitter")
+
+```
 
 
 4. Separate the Hometown column into two columns, namely the city and the state. Print the first few rows of these two columns. (Hint: look at the sep= argument of separate)
 
+```{r}
+bioClean <- bioClean %>%
+  separate(Hometown, c('City','State'), sep=', ')
+bioClean %>% select(City, State) %>% head()
 
+```
 
 5. How many players are there from each state?
 
 ```{r}
-##  DATA TIDYING   ##
+bioClean5 <- bioClean %>%  group_by(State) %>% summarise(n=n()) %>% arrange(desc(n))
+bioClean5
+ggplot(bioClean5, aes(x=State, weight=n)) + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 ```
 
@@ -111,9 +146,53 @@ str(bioClean)
 
 1. Find which states do the ISU defensive and offensive players come from. Create an appropriate summary.
 
+```{r}
+allDef <- defClean %>% 
+  mutate(team='defense') %>% 
+  distinct(Name,team) %>% 
+  left_join(bioClean %>% 
+  select(Name, City, State), c("Name" = "Name")) %>% 
+  select (Name, State, team)
+
+
+allOff <- offClean %>%
+  mutate(team='offense') %>% 
+  distinct(Name, team) %>% 
+  left_join(bioClean %>% select(Name, City, State), c("Name"= "Name")) %>%
+  select (Name, State, team)
+
+allTeam <- rbind(allDef, allOff)
+
+allTeam %>% 
+  group_by(State, team) %>% 
+  summarize(n=n()) %>%
+  ggplot (aes(x=State, weight=n, fill=team)) + 
+  geom_bar(position="dodge") +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  ggtitle('State of origin by offense / defense') +
+  xlab('State') + 
+  ylab('Numer of players') +
+  labs(fill="")
+
+```
+For each of our cleaned data sets, we add a new variable for team, which is either offense or defense. Then we merge the offensive data and defense data with the bio data (seperately). After selecting the columns we want from those data sets, we merge them into one large set of player names, their home state, and if they are offense or defense.
+
+That data is then grouped by State and team (offense/defense) and a count summary is performed for each group. That is ouput into a bar chart with the "fill" set to the teams and the bars offset from each other to show the difference in counts for each team (offense/defense). We chose to keep the NA's in this example, because it highlights the incompleteness of our data set. 
+
 
 2. How does the performance of quarterback Brock Purdy relate to the performance of the ISU team?
 
+```{r}
+offClean_t <- offClean %>% pivot_longer(Rushing_ATT:Passing_INT, names_to='stat', values_to='value') %>% filter (!is.na(value)) %>% mutate(stat = factor(stat))
+purdy_stats <- offClean_t %>% filter(Name=='Purdy, Brock') %>% group_by(stat) %>% summarise(purdy_mean = mean(value))
+team_stat <- offClean_t %>% filter(Name != 'Purdy, Brock') %>% group_by(stat) %>% summarise(team_average = mean(value))
+comparison_table <- purdy_stats %>% left_join(team_stat, c("stat" = "stat"))
+
+comparison_table
+
+```
+
+By calcuating the averages for all of Purdy's offensive player stats, then finding the average for the offensive stats for the rest of the team (removing pury'd contrinbution), we can compare Purdy's personal average and the average of the entire team for offensive statistics. 
 
 3. Which ISU player(s) made big progress over the last year? Compare the 2019 and the 2018 data here.
 
