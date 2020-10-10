@@ -274,6 +274,47 @@ off_state %>%
 
 There were 17 players on offense in 2019. The hometown state of 4 of them were not recorded in the data set, so they are excluded from the summaries. Based on the numerical and graphical summaries, we can see that there were 2 offensive players from Florida and Oklahoma each while there was 1 player from other 9 different states.
 
+<h5>Alternate Analysis<h5>
+
+```{r}
+
+allDef <- defClean %>% 
+  mutate(team='defense') %>% 
+  distinct(Name,team) %>% 
+  left_join(bioClean1 %>% 
+  select(Name, city, state), c("Name" = "Name")) %>% 
+  select (Name, state, team)
+
+
+allOff <- offClean %>%
+  mutate(team='offense') %>% 
+  distinct(Name, team) %>% 
+  left_join(bioClean1 %>% 
+  select(Name, city, state), c("Name"= "Name")) %>%
+  select (Name, state, team)
+
+allTeam <- rbind(allDef, allOff)
+
+allTeam %>% 
+  group_by(state, team) %>% 
+  summarize(n=n()) %>%
+  ggplot (aes(x=state, weight=n, fill=team)) + 
+  geom_bar(position="dodge") +
+  theme(axis.text.x = element_text(angle = 45)) + 
+  ggtitle('State of origin by offense / defense') +
+  xlab('State') + 
+  ylab('Numer of players') +
+  labs(fill="")
+
+```
+
+For each of our cleaned data sets, we add a new variable for team, which is either offense or defense. Then we merge the offensive data and defense data with the bio data (seperately). After selecting the columns we want from those data sets, we merge them into one large set of player names, their home state, and if they are offense or defense.
+
+That data is then grouped by State and team (offense/defense) and a count summary is performed for each group. That is ouput into a bar chart with the "fill" set to the teams and the bars offset from each other to show the difference in counts for each team (offense/defense). We chose to keep the NA's in this example, because it highlights the incompleteness of our data set. 
+
+
+
+
 
 **2. How does the performance of quarterback Brock Purdy relate to the performance of the ISU team?**
 ```{r}
