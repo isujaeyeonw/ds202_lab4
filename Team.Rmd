@@ -274,10 +274,9 @@ off_state %>%
 
 There were 17 players on offense in 2019. The hometown state of 4 of them were not recorded in the data set, so they are excluded from the summaries. Based on the numerical and graphical summaries, we can see that there were 2 offensive players from Florida and Oklahoma each while there was 1 player from other 9 different states.
 
-<h5>Alternate Analysis<h5>
 
+### Alternate Analysis
 ```{r}
-
 allDef <- defClean %>% 
   mutate(team='defense') %>% 
   distinct(Name,team) %>% 
@@ -301,10 +300,11 @@ allTeam %>%
   ggplot (aes(x=state, weight=n, fill=team)) + 
   geom_bar(position="dodge") +
   theme(axis.text.x = element_text(angle = 45)) + 
-  ggtitle('State of origin by offense / defense') +
+  ggtitle('Side by Side Barplot of the Number of ISU Players by Their Home State') +
   xlab('State') + 
   ylab('Numer of players') +
-  labs(fill="")
+  labs(fill="") +
+  theme(plot.title = element_text(size = 13, face = "bold"))
 
 ```
 
@@ -313,60 +313,34 @@ For each of our cleaned data sets, we add a new variable for team, which is eith
 That data is then grouped by State and team (offense/defense) and a count summary is performed for each group. That is ouput into a bar chart with the "fill" set to the teams and the bars offset from each other to show the difference in counts for each team (offense/defense). We chose to keep the NA's in this example, because it highlights the incompleteness of our data set. 
 
 
-
-
-
 **2. How does the performance of quarterback Brock Purdy relate to the performance of the ISU team?**
 ```{r}
-######################### Do we have to incorporate both offense and defense for the team performance?
-## jay's response: i don't think we do. Purdy does not have any defensive stats, so comparing hiis defense
-## performance to the teams would not give any insights. 
+offClean_t = offClean %>% 
+  pivot_longer(Rushing_ATT:Passing_INT, names_to='stat', values_to='value') %>% 
+  filter (!is.na(value)) %>%
+  mutate(stat = factor(stat))
 
-# Individual Score
-def_off_ind = defClean %>%
-  select(c(Name, Tackles_Solo)) %>%
-  full_join(offClean %>%
-               select(Name, Passing_TD),
-             by = 'Name') %>%
-  group_by(Name) %>% 
-  summarise(ind_def_score = sum(Tackles_Solo, na.rm = TRUE),
-            ind_off_score = sum(Passing_TD, na.rm = TRUE))
+# Purdy stats
+purdy_stats = offClean_t %>% 
+  filter(Name=='Purdy, Brock') %>% 
+  group_by(stat) %>% 
+  summarise(purdy_mean = mean(value))
 
-def_off_ind %>%
-  head(10)
+# Team stats
+team_stat = offClean_t %>% 
+  filter(Name != 'Purdy, Brock') %>% 
+  group_by(stat) %>% 
+  summarise(team_average = mean(value))
 
-# Team Score
-def_off_team = def_off_ind %>%
-  summarise(team_def_score = sum(ind_def_score),
-            team_off_score = sum(ind_off_score),
-            team_overall_score = sum(team_def_score, team_off_score))
-  
-def_off_team
-
-# Brock Purdy
-def_off_ind %>%
-  filter(Name == "Purdy, Brock")
-
-
-
-```
-
-<h5>Alternate Analysis</h5>
-```{r}
-offClean_t <- offClean %>% pivot_longer(Rushing_ATT:Passing_INT, names_to='stat', values_to='value') %>% filter (!is.na(value)) %>% mutate(stat = factor(stat))
-purdy_stats <- offClean_t %>% filter(Name=='Purdy, Brock') %>% group_by(stat) %>% summarise(purdy_mean = mean(value))
-team_stat <- offClean_t %>% filter(Name != 'Purdy, Brock') %>% group_by(stat) %>% summarise(team_average = mean(value))
-comparison_table <- purdy_stats %>% left_join(team_stat, c("stat" = "stat"))
+# comparison table
+comparison_table = purdy_stats %>% 
+  left_join(team_stat, c("stat" = "stat"))
 
 comparison_table
-
-
-
 ```
 
-By calculating the averages for all of Purdy's offensive player stats, then finding the average for the offensive stats for the rest of the team (removing Purdy's contribution), we can compare Purdy's personal average and the average of the entire team for offensive statistics.
+By calculating the averages for all of Purdy's offensive player stats, then finding the average for the offensive stats for the rest of the team (removing Purdy's contribution), we can compare Purdy's personal average and the average of the entire team for offensive statistics. Purdy has a lot of passing yards because he is the Quaterback. He throws the ball a lot. 
 
-Purdy has a lot of passing yards because he is the Quaterback. He throws the ball a lot. 
 
 **3. Which ISU player(s) made big progress over the last year? Compare the 2019 and the 2018 data here.**
 
@@ -469,4 +443,4 @@ off1819_progress %>%
         plot.caption = element_text(hjust = 0.5))
 ```
 
-I used inner join because we have to analyze the progress of the players who played both in 2018 and 2019.For this analysis, the player's progress was calculated based on their receiving records. Among the offensive players, Charlie Kolar made the biggest progress from 2018 to 2019. He achieved 29 more receiving records. On the other hand, Landen Akers, Kene Nwangwu, and Brock Purdy showed a zero progress on the receiving records. But this is because the three players take different roles rather than receiving.
+We used inner join because we have to analyze the progress of the players who played both in 2018 and 2019.For this analysis, the player's progress was calculated based on their receiving records. Among the offensive players, Charlie Kolar made the biggest progress from 2018 to 2019. He achieved 29 more receiving records. On the other hand, Landen Akers, Kene Nwangwu, and Brock Purdy showed a zero progress on the receiving records. But this is because the three players take different roles rather than receiving.
