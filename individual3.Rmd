@@ -1,0 +1,90 @@
+---
+title: 'Lab 4'
+author: "Alec Meyer"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+```
+
+
+```{r}
+def <- read_excel('cyclonesFootball2019.xlsx', sheet='Defensive')
+defClean <- def %>%
+  mutate(Name = factor(Name),
+         Opponent_Opponent=factor(Opponent_Opponent)) %>%
+  mutate(across(Tackles_Solo:Pass_PB, as.numeric))
+
+off <- read_excel('cyclonesFootball2019.xlsx', sheet='Offensive')
+offClean <- off %>%
+  mutate(Name = factor(Name),
+         Opponent_Opponent = factor(Opponent_Opponent)) %>%
+  mutate(across(Rushing_ATT:Passing_INT, as.numeric))
+
+
+bio <- read_excel('cyclonesFootball2019.xlsx', sheet='Biography')
+bioClean <- bio %>%
+  mutate(Weight = as.numeric(Weight)) %>%
+  separate(Height, c("feet","inches"), "-") %>%
+  mutate(Height = as.numeric(feet)* 12 + as.numeric(inches)) %>%
+  select(-feet, -inches)
+```
+
+
+Question 2.1<br />
+```{r}
+defClean1 <- defClean %>% 
+  pivot_longer(Tackles_Solo:Pass_PB, names_to='stat', values_to='value')
+head(defClean1)
+```
+
+
+Question 2.2 <br />
+```{r}
+defClean2 <- defClean1 %>% 
+  group_by(stat) %>% 
+  summarise(summary=sum(value)) %>%
+  arrange(summary)
+head(defClean2)
+p <- ggplot(defClean2, aes(x=stat, weight=summary)) + geom_bar()
+p + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) + ggtitle('Distribution of defensive stats')
+  
+```
+
+Turnovers are the rarest.
+
+
+Question 2.3<br />
+```{r}
+defClean3 <- defClean1 %>% 
+  pivot_wider(names_from = 'Opponent_Opponent', values_from = 'value') %>%
+  select(stat, Iowa, `Notre Dame`) %>% 
+  filter(stat=='Tackles_Solo')
+ggplot(defClean3, aes(x=Iowa, y=`Notre Dame`)) + geom_point(position="jitter")
+```
+<br /> Iowa had a better defense than Notre Dame
+
+Question 4<br />
+```{r}
+bioClean1 <- bioClean %>%
+  separate(Hometown, c('City','State'), sep=', ')
+bioClean1 %>% 
+  select(City, State) %>% 
+  head(4)
+```
+
+Question 5<br />
+```{r}
+bioClean1 %>%
+  group_by(State) %>%
+  summarise(n_players = n()) %>%
+  arrange(desc(n_players))
+```
+
+
+
+
+
+
